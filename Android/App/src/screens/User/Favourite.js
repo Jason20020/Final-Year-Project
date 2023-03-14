@@ -9,10 +9,12 @@ export default class Favorite extends Component {
 
     this.state = {
       user: null,
+      cars: [],
     };
   }
 
   async componentDidMount() {
+    await this.fetchFavData();
     await this.fetchUserData();
   }
 
@@ -27,6 +29,24 @@ export default class Favorite extends Component {
     })
   }
 
+  fetchFavData = async () => {
+    firestore.collection("favorites").get()
+    .then((querySnapshot) => {
+      const cars = [];
+      querySnapshot.forEach((doc) => {
+        const { carID, userID, carModel, carName, imgUri } = doc.data();
+        if(userID == auth.currentUser.uid)
+          cars.push({
+            carID,
+            carName,
+            carModel,
+            imgUri
+          })
+      })
+      this.setState({cars: cars});
+    })
+  }
+
   handleSignOut = () => {
     auth
       .signOut()
@@ -36,6 +56,8 @@ export default class Favorite extends Component {
       })
       .catch(error => alert(error.message))
   }
+
+  
 
   render() {
     const {navigation} = this.props
@@ -61,70 +83,26 @@ export default class Favorite extends Component {
         </View>
         <View style={styles.viewContainer}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/carphoto.png")}/>
-              </View>
-              <View style={styles.box2}>
-                <Text style={styles.text}>Ferrari</Text>
-                <Text style={styles.text}>458</Text>
-              </View>
-              <View style={styles.box3}>
-                <Image style={styles.favIcon} source={require("../../../assets/favorite.png")}/>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/carphoto.png")}/>
-              </View>
-              <View style={styles.box2}>
-                <Text style={styles.text}>Ferrari</Text>
-                <Text style={styles.text}>458</Text>
-              </View>
-              <View style={styles.box3}>
-                <Image style={styles.favIcon} source={require("../../../assets/favorite.png")}/>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/carphoto.png")}/>
-              </View>
-              <View style={styles.box2}>
-                <Text style={styles.text}>Ferrari</Text>
-                <Text style={styles.text}>458</Text>
-              </View>
-              <View style={styles.box3}>
-                <Image style={styles.favIcon} source={require("../../../assets/favorite.png")}/>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/carphoto.png")}/>
-              </View>
-              <View style={styles.box2}>
-                <Text style={styles.text}>Ferrari</Text>
-                <Text style={styles.text}>458</Text>
-              </View>
-              <View style={styles.box3}>
-                <Image style={styles.favIcon} source={require("../../../assets/favorite.png")}/>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/carphoto.png")}/>
-              </View>
-              <View style={styles.box2}>
-                <Text style={styles.text}>Ferrari</Text>
-                <Text style={styles.text}>458</Text>
-              </View>
-              <View style={styles.box3}>
-                <Image style={styles.favIcon} source={require("../../../assets/favorite.png")}/>
-              </View>
-            </TouchableOpacity>
+            {
+              this.state.cars.map((item, key) => {
+                return (
+                  <TouchableOpacity style={styles.box} onPress={() => navigation.navigate('Result', {car: item.carID, user: this.state.user})}>
+                    <View style={styles.box1}>
+                      <Image style={styles.img} source={{uri: item.imgUri}}/>
+                    </View>
+                    <View style={styles.box2}>
+                      <View style={styles.colBox}>
+                        <Text style={styles.text}>{item.carModel}</Text>
+                        <Text style={styles.text}>{item.carName}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.box3}>
+                      <Image style={styles.favIcon} source={require("../../../assets/favorite.png")}/>
+                    </View>
+                  </TouchableOpacity>
+                )
+              })
+            }
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -173,8 +151,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    flex: 1,
-    flexDirection:'column',
   },
   home: {
     height: 35,
@@ -208,9 +184,14 @@ const styles = StyleSheet.create({
     flex: 1.5
   },
   img: {
-    maxWidth: 140,
-    maxHeight: 90,
+    width: 140,
+    height: 90,
     borderRadius: 5
+  },
+  colBox: {
+    flexDirection:'column',    
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   favIcon: {
     margin: 10,

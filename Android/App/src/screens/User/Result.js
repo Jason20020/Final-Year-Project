@@ -20,22 +20,35 @@ class Result extends Component {
       fav: false,
       rate: 3,
       car: [],
-      maxRating: [1,2,3,4,5]
+      maxRating: [1,2,3,4,5],
+      favID: ''
     };
   }
 
   async componentDidMount() {
     await this.fetchCarData();
+    await this.fetchFavData();
   }
 
   fetchCarData = () => {
     firestore.collection("cars").get()
     .then((querySnapshot) => {
-      const cars = [];
       querySnapshot.forEach((doc) => {
-        const {pname} = doc.data();
-        if(pname == this.props.route.params.car)
+        const {pname, carID} = doc.data();
+        if(pname == this.props.route.params.car || carID == this.props.route.params.car)
           this.setState({car: doc.data()});
+      })
+    })
+  }
+
+  fetchFavData = () => {
+    firestore.collection("favorites").get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const { carID, userID } = doc.data();
+        if(carID == this.state.car.carID && userID == this.props.route.params.user?.userID)
+          this.setState({ fav: true });
+          this.setState({ favID: doc.id });
       })
     })
   }
@@ -46,11 +59,10 @@ class Result extends Component {
 
   handleFavChange = () => {
     if(this.state.fav) {
+      this.deleteFavorite(this.state.favID)
       this.setState({ fav: false });
-
     } else {
       this.addFavorite();
-      this.setState({ fav: true });
     }
   }
 
@@ -72,9 +84,23 @@ class Result extends Component {
     firestore.collection("favorites").doc().set({
       userID: this.props.route.params.user?.userID,
       carID: this.state.car.carID,
+      carModel: this.state.car.model,
+      carName: this.state.car.name,
+      imgUri: this.state.car.imgUri
     })
     .catch(error => alert(error.message))
+    this.fetchFavData();
   }
+
+  deleteFavorite = async (docId) => {
+    try {
+      const docRef = firestore.collection('favorites').doc(docId);
+      await docRef.delete();
+      console.log('Favorite deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting favorite: ', error);
+    }
+  };
 
   render() {
     const { navigation } = this.props;
