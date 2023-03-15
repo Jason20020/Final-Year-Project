@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
+import { useEffect } from "react";
 
 export default class ViewUser extends Component {
   constructor(props) {
@@ -23,7 +24,7 @@ export default class ViewUser extends Component {
         const {firstName, lastName, gender, role, email, dob, city, address1, address2, active} = doc.data();
         if(role == "user") 
           users.push({
-            id: doc.id,
+            userID: doc.id,
             firstName,
             lastName,
             gender,
@@ -83,7 +84,7 @@ export default class ViewUser extends Component {
           {
             this.state.users.map((item, key) => {
               return (
-              <TouchableOpacity style={styles.box}>
+              <View style={styles.box}>
                 <View style={styles.box1}>
                   <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
                 </View>
@@ -97,15 +98,15 @@ export default class ViewUser extends Component {
                 <View style={styles.box3}>
                   <View style={styles.colBox}>
                   <View><Text style={styles.active}>{item.active}</Text></View>
-                    <TouchableOpacity style={styles.button} onPress={this.Login}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserProfile', {user: item})}>
                       <Text style={styles.login}>VIEW</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={this.Login}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('EditProfile', {user: item})}>
                       <Text style={styles.login}>EDIT</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              </TouchableOpacity>
+              </View>
               )
             })
           }

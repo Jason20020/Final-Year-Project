@@ -15,7 +15,7 @@ import { firestore } from "../../config/firebase";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { SelectList } from 'react-native-dropdown-select-list'
 
-class SignUp extends Component {
+class EditProfile extends Component {
   constructor(props) {
     super(props);
 
@@ -73,8 +73,8 @@ class SignUp extends Component {
   }
 
   handleEditUser = () => {
-    firestore.collection("users").doc(auth.currentUser.uid).set({
-      userID: auth.currentUser.uid,
+    firestore.collection("users").doc(this.props.route.params.user?.userID).set({
+      userID: this.props.route.params.user?.userID,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       gender: this.state.gender,
@@ -87,13 +87,22 @@ class SignUp extends Component {
       active: "Active"
     })
     .catch(error => alert(error.message))
-    this.props.navigation.navigate('Profile')
+    this.props.navigation.navigate('ViewUser')
   }
 
   showDatePicker = () => {
     this.setState({ show: true })
   }
 
+  handleSignOut = () => {
+    auth
+      .signOut()
+      .then(() => {
+        this.props.navigation.replace("Home");
+        console.log("Logout Successfully")
+      })
+      .catch(error => alert(error.message))
+  }
 
   render() {
     const { navigation } = this.props;
@@ -106,13 +115,11 @@ class SignUp extends Component {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerFav}>
-            <TouchableOpacity onPress={() => navigation.navigate('UserHome')}>
-                <Image style={styles.fav} source={require("../../../assets/icons8-home-50.png")}/>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                <Image style={styles.fav} source={require("../../../assets/menu.png")}/>
             </TouchableOpacity>
           </View>
-          <View style={styles.headerSpac}>
-            <Text style={styles.title}>{this.state.user?.firstName}</Text>
-          </View>
+          <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
             <TouchableOpacity onPress={this.handleSignOut}>
                 <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
@@ -311,4 +318,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SignUp;
+export default EditProfile;

@@ -34,8 +34,14 @@ class Login extends Component {
       firestore.collection("users").doc(auth.currentUser.uid).get()
       .then(user => {
         if(user.data()?.role === "user"){
-          this.props.navigation.replace("UserHome");
-          console.log("Login Successfully")
+          if(user.data()?.active === "Active")
+          {
+            this.props.navigation.replace("UserHome");
+            console.log("Login Successfully")
+          }
+          else {
+            alert("Your account had been blocked!")
+          }
         }
         else {
           this.props.navigation.replace("AdminHome");
