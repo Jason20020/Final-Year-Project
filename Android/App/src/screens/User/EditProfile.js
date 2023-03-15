@@ -1,126 +1,195 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
-import * as FS from "expo-file-system";
-import * as ImagePicker from "expo-image-picker";
+import {
+  StyleSheet,
+  Text,
+  Image,
+  TextInput,
+  SafeAreaView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView
+} from "react-native";
+import { auth } from "../../config/firebase";
+import { firestore } from "../../config/firebase";
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { SelectList } from 'react-native-dropdown-select-list'
 
-export default class EditProfile extends Component {
+class SignUp extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      cameraRollPer: null,
-      disableButton: false,
-      car: null
+      firstName: this.props.route.params.user?.firstName,
+      lastName: this.props.route.params.user?.lastName,
+      gender: this.props.route.params.user?.gender,
+      dob: this.props.route.params.user?.dob,
+      address1: this.props.route.params.user?.address1,
+      address2: this.props.route.params.user?.address2,
+      city: this.props.route.params.user?.city,
+      email: this.props.route.params.user?.email,
+      password: this.props.route.params.user?.firstName,
+
+      show: false,
+      date: new Date()
     };
   }
 
-  async componentDidMount() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    this.setState((state, props) => {
-      return {
-        cameraRollPer: status === "granted",
-        disableButton: false,
-      };
-    });
+  handleFirstNameChange = (firstName) => {
+    this.setState({ firstName: firstName })
   }
 
-  uriToBase64 = async (uri) => {
-    let base64 = await FS.readAsStringAsync(uri, {
-      encoding: FS.EncodingType.Base64,
-    });
-    return base64;
-  };
+  handleLastNameChange = (lastName) => {
+    this.setState({ lastName: lastName })
+  }
 
-  pickMedia = async () => {
-    this.setState((state, props) => {
-      return {
-        cameraRollPer: state.cameraRollPer,
-        disableButton: true,
-      };
-    });
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      base64: true,
-    });
-    if (result.cancelled) {
-      return;
-    }
-    if (result.type == "image") {
-      await this.toServer({
-        type: result.type,
-        base64: result.base64,
-        uri: result.uri,
-      });
-    } else {
-      let base64 = await this.uriToBase64(result.uri);
-      await this.toServer({
-        type: result.type,
-        base64: base64,
-        uri: result.uri,
-      });
-    }
-  };
+  handleGenderChange = (gender) => {
+    this.setState({ gender: gender })
+  }
 
-  toServer = async (mediaFile) => {
-    let type = mediaFile.type;
-    let schema = "http://";
-    let host = "172.20.10.4";
-    let route = "";
-    let port = "5000";
-    let url = "";
-    let content_type = "";
-    type === "image"
-      ? ((route = "/image"), (content_type = "image/jpeg"))
-      : ((route = "/video"), (content_type = "video/mp4"));
-    url = schema + host + ":" + port + route;
+  handleDOBChange = (event, dob) => {
+    const currentDate = dob || date;
+    this.setState({ show: false })
+    this.setState({ date: currentDate });
+    let date = new Date(currentDate);
+    let fDate = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+    this.setState({ dob: fDate });
+  }
 
-    let response = await FS.uploadAsync(url, mediaFile.uri, {
-      headers: {
-        "content-type": content_type,
-      },
-      httpMethod: "POST",
-      uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
-    });
+  handleAddress1Change = (address1) => {
+    this.setState({ address1: address1 })
+  }
 
-    console.log(response.headers);
-    console.log(response.body);
-    this.setState((state, props) => {
-      return {
-        car: response.body
-      };
+  handleAddress2Change = (address2) => {
+    this.setState({ address2: address2 })
+  }
+
+  handleCityChange = (city) => {
+    this.setState({ city: city })
+  }
+
+  handlePasswordChange = (password) => {
+    this.setState({ password: password })
+  }
+
+  handleEditUser = () => {
+    firestore.collection("users").doc(auth.currentUser.uid).set({
+      userID: auth.currentUser.uid,
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      gender: this.state.gender,
+      dob: this.state.dob,
+      address1: this.state.address1,
+      address2: this.state.address2,
+      city: this.state.city,
+      email: this.state.email,
+      role: "user",
+      active: "Active"
     })
-  };
+    .catch(error => alert(error.message))
+    this.props.navigation.navigate('Profile')
+  }
+
+  showDatePicker = () => {
+    this.setState({ show: true })
+  }
 
 
   render() {
+    const { navigation } = this.props;
+    const data = [
+      {key:'1', value:'Male'},
+      {key:'2', value:'Female'},
+    ]
+
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Image style={styles.fav} source={require("../../../assets/favorite.png")}/>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image style={styles.home} source={require("../../../assets/icons8-home-50.png")}/>
+        </TouchableOpacity>
+        <ScrollView showsVerticalScrollIndicator={false}>
+        <KeyboardAvoidingView behavior="padding" style={styles.viewContainer}>
+          <Text style= {styles.title}>Edit Profile</Text>
+
+          <Text style= {styles.text}>Email:</Text>
+          <TextInput 
+            style={styles.textbox} 
+            placeholder= 'Enter Email'
+            value={this.state.email}
+            editable={false} 
+            selectTextOnFocus={false}
+          />
+
+          <Text style= {styles.text}>First Name:</Text>
+          <TextInput 
+            style={styles.textbox} 
+            placeholder= 'Enter First Name'
+            onChangeText={this.handleFirstNameChange} 
+            value={this.state.firstName}
+          />
+
+          <Text style= {styles.text}>Last Name:</Text>
+          <TextInput 
+            style={styles.textbox} 
+            placeholder= 'Enter Last Name'
+            onChangeText={this.handleLastNameChange} 
+            value={this.state.lastName}
+          />
+
+          <Text style= {styles.text}>Gender:</Text>
+          <SelectList 
+            boxStyles={styles.selectBox}
+            setSelected={this.handleGenderChange} 
+            data={data} 
+            save="value"
+            defaultOption={{ key: this.state.gender, value: this.state.gender}}
+          />
+
+          <Text style= {styles.text}>Date of Birth:</Text>
+          <Text style= {styles.dateBox}>{this.state.dob}</Text>
+          <TouchableOpacity style={styles.dateBtn} onPress={this.showDatePicker}>
+            <Text style={styles.login}>Pick Date</Text>
           </TouchableOpacity>
-        </View>
-        <View style={styles.welcome}>
-          <Text style={styles.welText}>Welcome, !</Text>
-        </View>
-        <View style={styles.viewContainer}>
-          <TouchableOpacity 
-          style={styles.carButton} 
-          disabled={this.state.disableButton}
-            onPress={async () => {
-              await this.pickMedia();
-              this.setState((s, p) => {
-                return {
-                  cameraRollPer: s.cameraRollPer,
-                  disableButton: false,
-                };
-              });
-              this.props.navigation.navigate('Result', {car: this.state.car});
-            }}>
-            <Image style={styles.logo} source={require("../../../assets/carLogo.png")}/>
+
+          {this.state.show && (
+            <DateTimePicker
+            testID="dateTimePicker"
+            value={this.state.date}
+            mode="date"
+            is24Hour={true}
+            display='default'
+            onChange={this.handleDOBChange}
+            />
+          )}
+
+          <Text style= {styles.text}>Address 1:</Text>
+          <TextInput 
+            style={styles.textbox} 
+            placeholder= 'Enter Address 1'
+            onChangeText={this.handleAddress1Change} 
+            value={this.state.address1}
+          />
+
+          <Text style= {styles.text}>Address 2:</Text>
+          <TextInput 
+            style={styles.textbox} 
+            placeholder= 'Enter Address 2'
+            onChangeText={this.handleAddress2Change} 
+            value={this.state.address2}
+          />
+
+          <Text style= {styles.text}>City:</Text>
+          <TextInput 
+            style={styles.textbox} 
+            placeholder= 'Enter City'
+            onChangeText={this.handleCityChange} 
+            value={this.state.city}
+          />
+
+          <TouchableOpacity style={styles.button} onPress={this.handleEditUser}>
+            <Text style={styles.login}>EDIT</Text>
           </TouchableOpacity>
-        </View>
+        </KeyboardAvoidingView>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -132,34 +201,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFBE0B',
     fontSize: 20
   },
-  header: {
-  },
-  fav: {
-    marginLeft: 30,
-    marginTop: 40,
-    height: 35,
-    width: 35
+  title: {
+    fontSize: 32,
+    marginBottom: 20
   },
   viewContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  welcome: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  home: {
+    marginLeft: 30,
+    marginTop: 40,
+    height: 35,
+    width: 35
   },
-  welText: {
-    fontSize: 32,
-
+  text: {
+    fontSize: 20,
+    color: '#434343',
+    marginBottom: 8
   },
-  carButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    marginBottom: 5,
-    alignItems: 'center'
+  textbox: {
+    backgroundColor: '#DFDEDE',
+    borderRadius: 6,
+    height: 38,
+    width: 174,
+    marginBottom: 20,
+    padding: 5
   },
   button: {
     backgroundColor: '#DEB27C',
@@ -168,28 +236,40 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingTop: 3, 
     paddingBottom: 3,
-    marginBottom: 15
+    marginTop: 10
   },
-  logo: {
-    width: 94,
-    height: 143,
-  },
-  preview: {
-    alignSelf: 'stretch',
-    flex: 1
-  },
-  text: {
+  login: {
     fontSize: 20,
     color: '#FFFEFE'
   },
-  footer: {
-    flex: 1,
-    backgroundColor: '#FFE999',
-    
-  }
-  ,
-  home: {
-    height: 35,
-    width: 35
+  dateBtn: {
+    backgroundColor: '#0000FF',
+    paddingLeft: 30,
+    paddingRight: 30,
+    borderRadius: 10,
+    paddingTop: 3, 
+    paddingBottom: 3,
+    marginBottom: 10
   },
+  dateBox: {
+    backgroundColor: '#DFDEDE',
+    borderRadius: 6,
+    height: 38,
+    width: 174,
+    marginBottom: 20,
+    padding: 5,
+    fontSize: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectBox: {
+    backgroundColor: '#DFDEDE',
+    borderRadius: 6,
+    height: 45,
+    width: 174,
+    marginBottom: 20,
+    padding: 5
+  }
 });
+
+export default SignUp;

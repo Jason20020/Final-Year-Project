@@ -131,7 +131,7 @@ export default class Profile extends Component {
                   </View>
                 </View>
                 <View style={styles.editButton}>
-                  <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('SignUp')}>
+                  <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('EditProfile', {user: this.state.user})}>
                     <Text style={styles.text}>EDIT PROFILE</Text>
                   </TouchableOpacity>
                 </View>

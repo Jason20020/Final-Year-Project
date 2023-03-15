@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
 
 export default class ViewCar extends Component {
