@@ -21,13 +21,15 @@ class Result extends Component {
       rate: 3,
       car: [],
       maxRating: [1,2,3,4,5],
-      favID: ''
+      favID: '',
+      commentList: []
     };
   }
 
   async componentDidMount() {
     await this.fetchCarData();
     await this.fetchFavData();
+    await this.fetchCommentData();
   }
 
   fetchCarData = () => {
@@ -101,6 +103,59 @@ class Result extends Component {
       console.error('Error deleting favorite: ', error);
     }
   };
+
+  handleCommentSubmit = () => {
+    firestore.collection("comments").doc().set({
+      userID: this.props.route.params.user?.userID,
+      userFirstName: this.props.route.params.user?.firstName,
+      carID: this.state.car.carID,
+      carModel: this.state.car.model,
+      carName: this.state.car.name,
+      imgUri: this.state.car.imgUri,
+      comment: this.state.comment,
+      rate: this.state.rate,
+      gender: this.props.route.params.user?.gender
+    })
+    .catch(error => alert(error.message))
+    this.setState({ comment: ''})
+    this.props.navigation.replace('Result', {car: this.props.route.params.car, user: this.props.route.params.user});
+  }
+
+  fetchCommentData = () => {
+    firestore.collection("comments").get()
+    .then((querySnapshot) => {
+      const comments = [];
+      querySnapshot.forEach((doc) => {
+        const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID } = doc.data();
+        if(carID == this.state.car.carID)
+          comments.push({
+            commentID: doc.id,
+            carID,
+            imgUri,
+            carModel,
+            carName,
+            comment,
+            rate,
+            userFirstName,
+            gender,
+            userID
+          })
+      })
+      this.setState({commentList: comments});
+    })
+  }
+
+  deleteComment = async (docId) => {
+    try {
+      const docRef = firestore.collection('comments').doc(docId);
+      await docRef.delete();
+      console.log('Comment deleted successfully.');
+      this.props.navigation.replace('Result', {car: this.props.route.params.car, user: this.props.route.params.user});
+    } catch (error) {
+      console.error('Error deleting comment: ', error);
+    }
+  };
+
 
   render() {
     const { navigation } = this.props;
@@ -241,9 +296,58 @@ class Result extends Component {
             value={this.state.comment}
             style={styles.commentBox}
           />
-          <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
+          <TouchableOpacity style={styles.button} onPress={this.handleCommentSubmit}>
             <Text style={styles.btnText}>SUBMIT</Text>
           </TouchableOpacity>
+            {
+              this.state.commentList.map((item, key) => {
+                return (
+                  <View style={styles.commentListBox}>
+                    <View style={styles.commentListLeft}>
+                      <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
+                    </View>
+                    <View style={styles.commentListRight}>
+                      <View style={styles.commentListRightTop}>
+                        <View style={styles.commentListRightTopLeft}>
+                          <Text style={styles.userTitle}>{item.userFirstName}</Text>
+                        </View>
+                        <View style={styles.commentListRightTopRight}>
+                        {
+                          this.state.maxRating.map((star, key) => {
+                            return (
+                              <View>
+                                <Image
+                                  style={styles.rateImg}
+                                  source={
+                                    star <= item.rate ? require("../../../assets/yellowStar.png") : null
+                                  }
+                                />
+                              </View>
+                            )
+                          })
+                        }
+                        </View>
+                      </View>
+                      <View style={styles.commentListRightBottom}>
+                        <Text>{item.comment}</Text>
+                      </View>
+                      <View style={styles.commentListFooter}>
+                        <View style={styles.commentFooterSpace}></View>
+                        <View style={styles.commentFooterBtn}>
+                          {
+                            item.userID == auth.currentUser.uid ? 
+                            <TouchableOpacity style={styles.dltButton} onPress={() => this.deleteComment(item.commentID)}>
+                              <Text style={styles.dltBtnText}>DELETE</Text>
+                            </TouchableOpacity>
+                            : null
+                          }
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  )
+                })
+              }     
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -405,6 +509,57 @@ const styles = StyleSheet.create({
   favImg: {
     height: 35,
     width: 35
+  },
+  commentListBox: {
+    backgroundColor: '#EBEAEA',
+    marginTop: 20,
+    height: 120,
+    borderRadius: 10,
+    paddingTop: 10,
+    flexDirection: 'row'
+  },
+  commentListRightTop: {
+    flexDirection: 'row',
+    width: 270,
+  },
+  commentListRightTopLeft: {
+    flex: 1,
+  },
+  commentListRightTopRight: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  commentListRightBottom: {
+    marginTop: 5,
+    maxWidth: 270,
+    height: 45
+  },
+  rateImg: {
+    height: 25,
+    width: 25
+  },
+  userTitle: {
+    fontSize: 20
+  },
+  dltButton: {
+    backgroundColor: '#DEB27C',
+    width: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  dltBtnText: {
+    fontSize: 16,
+    color: '#FFFEFE'
+  },
+  commentListFooter: {
+    flexDirection: 'row',
+  },
+  commentFooterSpace: {
+    flex: 2.2
+  },
+  commentFooterBtn: {
+    flex: 1
   }
 });
 
