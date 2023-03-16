@@ -6,6 +6,8 @@ import Comment from '../src/screens/Admin/ViewComment'
 import User from '../src/screens/Admin/ViewUser'
 import UserProfile from '../src/screens/Admin/User'
 import EditProfile from '../src/screens/Admin/EditProfile'
+import CarDetail from '../src/screens/Admin/Car'
+import EditCar from '../src/screens/Admin/EditCar';
 
 const HomeStack = createDrawerNavigator();
 
@@ -14,7 +16,7 @@ export function HomeDrawerScreen () {
       <HomeStack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
         <HomeStack.Screen name="Home" component={AdHome} />
         <HomeStack.Screen name="User" component={UserNavigator} />
-        <HomeStack.Screen name="Car" component={Car} />
+        <HomeStack.Screen name="Car" component={CarNavigator} />
         <HomeStack.Screen name="Comment" component={Comment} />
       </HomeStack.Navigator>
   );
@@ -29,5 +31,17 @@ export function UserNavigator() {
         <UserStack.Screen name="UserProfile" component={UserProfile} />
         <UserStack.Screen name="EditProfile" component={EditProfile} />
       </UserStack.Navigator>
+  );
+}
+
+const CarStack = createStackNavigator();
+
+export function CarNavigator() {
+  return (
+      <CarStack.Navigator initialRouteName="ViewCar" screenOptions={{headerShown: false}}>
+        <CarStack.Screen name="ViewCar" component={Car} />
+        <CarStack.Screen name="CarDetail" component={CarDetail} />
+        <CarStack.Screen name="EditCar" component={EditCar} />
+      </CarStack.Navigator>
   );
 }

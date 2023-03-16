@@ -30,7 +30,7 @@ export default class ViewCar extends Component {
     .then((querySnapshot) => {
       const cars = [];
       querySnapshot.forEach((doc) => {
-        const {carID, pname, brand, fuel, model, name, price, speed, imgUri} = doc.data();
+        const {carID, pname, brand, fuel, model, name, price, speed, imgUri, id} = doc.data();
         cars.push({
           carID,
           pname,
@@ -40,7 +40,8 @@ export default class ViewCar extends Component {
           name,
           price,
           speed,
-          imgUri
+          imgUri,
+          id
         })
       })
       this.setState({cars: cars});
@@ -78,7 +79,7 @@ export default class ViewCar extends Component {
             {
               this.state.cars.map((item, key) => {
                 return (
-                  <TouchableOpacity style={styles.box}>
+                  <View style={styles.box}>
                     <View style={styles.box1}>
                       <Image style={styles.img} source={{uri: item.imgUri,}}/>
                     </View>
@@ -91,15 +92,15 @@ export default class ViewCar extends Component {
                     </View>
                     <View style={styles.box3}>
                       <View style={styles.colBox}>
-                        <TouchableOpacity style={styles.button} onPress={this.Login}>
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CarDetail', {car: item.carID})}>
                           <Text style={styles.login}>VIEW</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={this.Login}>
+                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('EditCar', { carId: item.id})}>
                           <Text style={styles.login}>EDIT</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
-                  </TouchableOpacity>
+                  </View>
                 )
               })
             }       
