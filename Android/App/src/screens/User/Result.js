@@ -48,9 +48,10 @@ class Result extends Component {
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         const { carID, userID } = doc.data();
-        if(carID == this.state.car.carID && userID == this.props.route.params.user?.userID)
+        if(carID == this.state.car.carID && userID == this.props.route.params.user?.userID) {
           this.setState({ fav: true });
           this.setState({ favID: doc.id });
+        }
       })
     })
   }
@@ -114,7 +115,8 @@ class Result extends Component {
       imgUri: this.state.car.imgUri,
       comment: this.state.comment,
       rate: this.state.rate,
-      gender: this.props.route.params.user?.gender
+      gender: this.props.route.params.user?.gender,
+      status: "Show"
     })
     .catch(error => alert(error.message))
     this.setState({ comment: ''})
@@ -126,8 +128,8 @@ class Result extends Component {
     .then((querySnapshot) => {
       const comments = [];
       querySnapshot.forEach((doc) => {
-        const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID } = doc.data();
-        if(carID == this.state.car.carID)
+        const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID, status } = doc.data();
+        if(carID == this.state.car.carID && status == "Show")
           comments.push({
             commentID: doc.id,
             carID,

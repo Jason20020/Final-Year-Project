@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { auth, firestore } from "../../config/firebase";
 
-class Car extends Component {
+class ViewComment extends Component {
   constructor(props) {
     super(props);
 
@@ -432,4 +432,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Car;
+export default ViewComment;

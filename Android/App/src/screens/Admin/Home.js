@@ -103,6 +103,7 @@ export default class Home extends Component {
         car: response.body
       };
     })
+    this.props.navigation.navigate('CarDetail', {car: this.state.car});
   };
 
   handleSignOut = () => {
@@ -149,7 +150,6 @@ export default class Home extends Component {
                   disableButton: false,
                 };
               });
-              this.props.navigation.navigate('Result', {car: this.state.car});
             }}>
             <Image style={styles.logo} source={require("../../../assets/carLogo.png")}/>
           </TouchableOpacity>

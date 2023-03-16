@@ -8,16 +8,28 @@ import UserProfile from '../src/screens/Admin/User'
 import EditProfile from '../src/screens/Admin/EditProfile'
 import CarDetail from '../src/screens/Admin/Car'
 import EditCar from '../src/screens/Admin/EditCar';
+import CommentDetail from '../src/screens/Admin/Comment'
 
-const HomeStack = createDrawerNavigator();
+const AdminStack = createDrawerNavigator();
 
 export function HomeDrawerScreen () {
   return (
-      <HomeStack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
-        <HomeStack.Screen name="Home" component={AdHome} />
-        <HomeStack.Screen name="User" component={UserNavigator} />
-        <HomeStack.Screen name="Car" component={CarNavigator} />
-        <HomeStack.Screen name="Comment" component={Comment} />
+      <AdminStack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
+        <AdminStack.Screen name="Home" component={HomeNavigator} />
+        <AdminStack.Screen name="User" component={UserNavigator} />
+        <AdminStack.Screen name="Car" component={CarNavigator} />
+        <AdminStack.Screen name="Comment" component={CommentNavigator} />
+      </AdminStack.Navigator>
+  );
+}
+
+const HomeStack = createStackNavigator();
+
+export function HomeNavigator() {
+  return (
+      <HomeStack.Navigator initialRouteName="AdminHome" screenOptions={{headerShown: false}}>
+        <HomeStack.Screen name="AdminHome" component={AdHome} />
+        <HomeStack.Screen name="CarDetail" component={CarDetail} />
       </HomeStack.Navigator>
   );
 }
@@ -43,5 +55,16 @@ export function CarNavigator() {
         <CarStack.Screen name="CarDetail" component={CarDetail} />
         <CarStack.Screen name="EditCar" component={EditCar} />
       </CarStack.Navigator>
+  );
+}
+
+const CommentStack = createStackNavigator();
+
+export function CommentNavigator() {
+  return (
+      <CommentStack.Navigator initialRouteName="ViewComment" screenOptions={{headerShown: false}}>
+        <CommentStack.Screen name="ViewComment" component={Comment} />
+        <CommentStack.Screen name="CommentDetail" component={CommentDetail} />
+      </CommentStack.Navigator>
   );
 }

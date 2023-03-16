@@ -7,11 +7,12 @@ export default class ViewComment extends Component {
     super(props);
 
     this.state = {
-      cameraRollPer: null,
-      disableButton: false,
-      car: null,
-      user: null,
+      commentList: []
     };
+  }
+
+  async componentDidMount() {
+    await this.fetchCommentData();
   }
 
   handleSignOut = () => {
@@ -24,6 +25,63 @@ export default class ViewComment extends Component {
       .catch(error => alert(error.message))
   }
 
+  fetchCommentData = () => {
+    firestore.collection("comments").get()
+    .then((querySnapshot) => {
+      const comments = [];
+      querySnapshot.forEach((doc) => {
+        const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID, status } = doc.data();
+        comments.push({
+          commentID: doc.id,
+          carID,
+          imgUri,
+          carModel,
+          carName,
+          comment,
+          rate,
+          userFirstName,
+          gender,
+          userID,
+          status
+        })
+      })
+      this.setState({commentList: comments});
+    })
+  }
+
+  handleCommentStatus = (item) => {
+    if(item.status == "Show"){
+      firestore.collection("comments").doc(item.commentID).set({
+        userID: item.userID,
+        userFirstName: item.userFirstName,
+        carID: item.carID,
+        carModel: item.carModel,
+        carName: item.carName,
+        imgUri: item.imgUri,
+        comment: item.comment,
+        rate: item.rate,
+        gender: item.gender,
+        status: "Hide"
+      })
+      .catch(error => alert(error.message))
+    }
+    else {
+      firestore.collection("comments").doc(item.commentID).set({
+        userID: item.userID,
+        userFirstName: item.userFirstName,
+        carID: item.carID,
+        carModel: item.carModel,
+        carName: item.carName,
+        imgUri: item.imgUri,
+        comment: item.comment,
+        rate: item.rate,
+        gender: item.gender,
+        status: "Show"
+      })
+      .catch(error => alert(error.message))
+    }
+    this.props.navigation.navigate('Comment')
+  }
 
   render() {
     const { navigation } = this.props;
@@ -54,124 +112,34 @@ export default class ViewComment extends Component {
         </View>
         <View style={styles.viewContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/male.png")}/>
-              </View>
-              <View style={styles.box2}>
-                <View style={styles.colBox}>
-                  <View><Text style={styles.carID}>C0001</Text></View>
-                  <View><Text style={styles.text}>Jason Jing</Text></View>
-                  <View><Text style={styles.text}>Ferrari 458</Text></View>
-                  <View><Text style={styles.text}>The Car is ...</Text></View>
+          {
+            this.state.commentList.map((item, key) => {
+              return (
+                <View style={styles.box}>
+                  <View style={styles.box1}>
+                    <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
+                  </View>
+                  <View style={styles.box2}>
+                    <View style={styles.colBox}>
+                      <View><Text style={styles.carID}>{item.carID}</Text></View>
+                      <View><Text style={styles.text}>{item.userFirstName}</Text></View>
+                      <View><Text numberOfLines={2} style={styles.cmt}>{item.comment}</Text></View>
+                    </View>
+                  </View>
+                  <View style={styles.box3}>
+                    <View style={styles.colBox}>
+                      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CommentDetail', {comment: item.commentID})}>
+                        <Text style={styles.login}>VIEW</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.button} onPress={() => this.handleCommentStatus(item)}>
+                        <Text style={styles.login}>{item.status == "Show" ? "HIDE" : "SHOW"}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.box3}>
-                <View style={styles.colBox}>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>VIEW</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>HIDE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/female.png")}/>
-              </View>
-              <View style={styles.box2}>
-              <View style={styles.colBox}>
-                  <View><Text style={styles.carID}>C0001</Text></View>
-                  <View><Text style={styles.text}>Jason Jing</Text></View>
-                  <View><Text style={styles.text}>Ferrari 458</Text></View>
-                  <View><Text style={styles.text}>The Car is ...</Text></View>
-                </View>
-              </View>
-              <View style={styles.box3}>
-                <View style={styles.colBox}>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>VIEW</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>HIDE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/male.png")}/>
-              </View>
-              <View style={styles.box2}>
-              <View style={styles.colBox}>
-                  <View><Text style={styles.carID}>C0001</Text></View>
-                  <View><Text style={styles.text}>Jason Jing</Text></View>
-                  <View><Text style={styles.text}>Ferrari 458</Text></View>
-                  <View><Text style={styles.text}>The Car is ...</Text></View>
-                </View>
-              </View>
-              <View style={styles.box3}>
-                <View style={styles.colBox}>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>VIEW</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>HIDE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/female.png")}/>
-              </View>
-              <View style={styles.box2}>
-              <View style={styles.colBox}>
-                  <View><Text style={styles.carID}>C0001</Text></View>
-                  <View><Text style={styles.text}>Jason Jing</Text></View>
-                  <View><Text style={styles.text}>Ferrari 458</Text></View>
-                  <View><Text style={styles.text}>The Car is ...</Text></View>
-                </View>
-              </View>
-              <View style={styles.box3}>
-                <View style={styles.colBox}>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>VIEW</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>HIDE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.box}>
-              <View style={styles.box1}>
-                <Image style={styles.img} source={require("../../../assets/male.png")}/>
-              </View>
-              <View style={styles.box2}>
-              <View style={styles.colBox}>
-                  <View><Text style={styles.carID}>C0001</Text></View>
-                  <View><Text style={styles.text}>Jason Jing</Text></View>
-                  <View><Text style={styles.text}>Ferrari 458</Text></View>
-                  <View><Text style={styles.text}>The Car is ...</Text></View>
-                </View>
-              </View>
-              <View style={styles.box3}>
-                <View style={styles.colBox}>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>VIEW</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button} onPress={this.Login}>
-                    <Text style={styles.login}>HIDE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
+                )
+              })
+            }   
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -285,5 +253,8 @@ const styles = StyleSheet.create({
   login: {
     fontSize: 20,
     color: '#FFFEFE'
+  }, 
+  cmt: {
+    fontSize: 16
   }
 });
