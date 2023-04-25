@@ -26,7 +26,6 @@ class Result extends Component {
   fetchCarData = () => {
     firestore.collection("cars").get()
     .then((querySnapshot) => {
-      const cars = [];
       querySnapshot.forEach((doc) => {
         const {pname} = doc.data();
         if(pname == this.props.route.params.car)
@@ -40,9 +39,9 @@ class Result extends Component {
     const data = this.props.route.params.car; 
 
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} testID="generalResult">
         <View style={styles.viewContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
               <Image style={styles.home} source={require("../../../assets/icons8-home-50.png")}/>
           </TouchableOpacity>
           <View>

@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   ScrollView,
-  View
+  View,
+  Alert
 } from "react-native";
 import { auth } from "../../config/firebase";
 import { firestore } from "../../config/firebase";
@@ -114,8 +115,23 @@ class SignUp extends Component {
             <Text style={styles.title}>{this.state.user?.firstName}</Text>
           </View>
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>
@@ -171,6 +187,7 @@ class SignUp extends Component {
               mode="date"
               is24Hour={true}
               display='default'
+              maximumDate={new Date()}
               onChange={this.handleDOBChange}
               />
             )}

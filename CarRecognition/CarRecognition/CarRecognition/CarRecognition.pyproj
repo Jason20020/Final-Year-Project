@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>33cff6c8-f19e-47c2-9c23-a800a2d6e559</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>config.py</StartupFile>
+    <StartupFile>CarRecognition.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

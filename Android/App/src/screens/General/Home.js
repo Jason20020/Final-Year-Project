@@ -27,13 +27,6 @@ export default class Home extends Component {
     });
   }
 
-  uriToBase64 = async (uri) => {
-    let base64 = await FS.readAsStringAsync(uri, {
-      encoding: FS.EncodingType.Base64,
-    });
-    return base64;
-  };
-
   pickMedia = async () => {
     this.setState((state, props) => {
       return {
@@ -54,29 +47,22 @@ export default class Home extends Component {
         base64: result.base64,
         uri: result.uri,
       });
-    } else {
-      let base64 = await this.uriToBase64(result.uri);
-      await this.toServer({
-        type: result.type,
-        base64: base64,
-        uri: result.uri,
-      });
     }
   };
 
   toServer = async (mediaFile) => {
     this.setState({ loader: true })
     let type = mediaFile.type;
-    let schema = "http://";
-    let host = "172.20.10.4";
+    let schema = "https://";
+    let host = "final-project-9dfc4.ew.r.appspot.com";
     let route = "";
-    let port = "5000";
+    let port = "";
     let url = "";
     let content_type = "";
     type === "image"
       ? ((route = "/image"), (content_type = "image/jpeg"))
       : ((route = "/video"), (content_type = "video/mp4"));
-    url = schema + host + ":" + port + route;
+    url = schema + host + port + route;
 
     let response = await FS.uploadAsync(url, mediaFile.uri, {
       headers: {
@@ -101,12 +87,12 @@ export default class Home extends Component {
   render() {
     return (
       <>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} testID="generalHome">
         <View style={styles.viewContainer}>
         <Text></Text>
           <TouchableOpacity 
-          style={styles.carButton} 
-          disabled={this.state.disableButton}
+            style={styles.carButton} 
+            disabled={this.state.disableButton}
             onPress={async () => {
               await this.pickMedia();
               this.setState((s, p) => {
@@ -115,13 +101,15 @@ export default class Home extends Component {
                   disableButton: false,
                 };
               });
-            }}>
+            }}
+            testID="logoButton"
+            >
             <Image style={styles.logo} source={require("../../../assets/carLogo.png")}/>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('Login')}>
+          <TouchableOpacity testID="loginButton" style={styles.button} onPress={() => this.props.navigation.navigate('Login')}>
             <Text style={styles.text}>LOGIN</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('SignUp')}>
+          <TouchableOpacity testID="signUpButton" onPress={() => this.props.navigation.navigate('SignUp')}>
             <Text style={styles.text}>SIGN UP</Text>
           </TouchableOpacity>
         </View>

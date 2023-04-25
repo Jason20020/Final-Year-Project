@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
 
 export default class Profile extends Component {
@@ -13,6 +13,13 @@ export default class Profile extends Component {
 
   async componentDidMount() {
     await this.fetchUserData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if the state has changed and reload the data if necessary
+    if (prevState.user !== this.state.user) {
+      this.fetchUserData();
+    }
   }
 
   fetchUserData = () => {
@@ -49,8 +56,23 @@ export default class Profile extends Component {
           </View>
           <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>

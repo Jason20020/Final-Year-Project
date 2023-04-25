@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
 
 export default class User extends Component {
@@ -85,8 +85,23 @@ export default class User extends Component {
           </View>
           <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>
@@ -179,8 +194,22 @@ export default class User extends Component {
                   <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('EditProfile', {user: this.state.user})}>
                     <Text style={styles.text}>EDIT</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.button} onPress={this.handleActive}>
-                    <Text style={styles.text}>{this.state.user?.active == "Active" ? "Deactive" : "Active"}</Text>
+                  <TouchableOpacity style={styles.button} onPress={() => {
+                    Alert.alert(
+                      "Account Activation",
+                      `Are you sure you want to ${this.state.user?.active == "Active" ? "Deactivate" : "Activate"} this user account?`,
+                      [
+                        {
+                          text: "Cancel",
+                          onPress: () => console.log("Cancel Pressed"),
+                          style: "cancel"
+                        },
+                        { text: "Yes", onPress: () => this.handleActive() }
+                      ],
+                      { cancelable: false }
+                    );
+                  }}>
+                    <Text style={styles.text}>{this.state.user?.active == "Active" ? "Deactivate" : "Activate"}</Text>
                   </TouchableOpacity>
                 </View>
             </ScrollView>

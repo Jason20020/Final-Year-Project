@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
 
 
@@ -73,8 +73,23 @@ export default class Favorite extends Component {
             <Text style={styles.title}>{this.state.user?.firstName}</Text>
           </View>
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>

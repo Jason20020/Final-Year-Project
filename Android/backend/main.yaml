@@ -1,0 +1,14 @@
+runtime: python310
+instance_class: F4_1G
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.8
+  target_throughput_utilization: 0.9
+
+entrypoint: gunicorn -b :$PORT main:app
+
+handlers:
+- url: /.*
+  script: auto

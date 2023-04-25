@@ -7,7 +7,8 @@ import {
   View,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  Alert
 } from "react-native";
 import { auth, firestore } from "../../config/firebase";
 
@@ -175,8 +176,23 @@ class Result extends Component {
             <Text style={styles.title}>{userName}</Text>
           </View>
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>
@@ -304,7 +320,7 @@ class Result extends Component {
             {
               this.state.commentList.map((item, key) => {
                 return (
-                  <View style={styles.commentListBox}>
+                  <View style={styles.commentListBox} key={key}>
                     <View style={styles.commentListLeft}>
                       <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
                     </View>

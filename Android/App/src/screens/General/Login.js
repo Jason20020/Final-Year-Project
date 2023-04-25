@@ -28,8 +28,8 @@ class Login extends Component {
     this.setState({ password: password })
   }
 
-  Login = () => {
-    auth.signInWithEmailAndPassword(this.state.email, this.state.password)
+  Login = async () => {
+    await auth.signInWithEmailAndPassword(this.state.email, this.state.password)
     .then(() => {
       firestore.collection("users").doc(auth.currentUser.uid).get()
       .then(user => {
@@ -58,8 +58,8 @@ class Login extends Component {
     const { navigation } = this.props;
 
     return (
-      <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <SafeAreaView style={styles.container} testID="generalLogin">
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Image style={styles.home} source={require("../../../assets/icons8-home-50.png")}/>
         </TouchableOpacity>
         <KeyboardAvoidingView behavior="padding" style={styles.viewContainer}>

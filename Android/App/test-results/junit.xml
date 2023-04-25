@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="37" failures="1" errors="0" time="27.492">
+  <testsuite name="General Home Components Testing" errors="0" failures="0" skipped="0" timestamp="2023-03-23T11:02:02" time="11.036" tests="4">
+    <testcase classname="General Home Components Testing Home renders correctly" name="General Home Components Testing Home renders correctly" time="0.565">
+    </testcase>
+    <testcase classname="General Home Components Testing Check General Home Components" name="General Home Components Testing Check General Home Components" time="0.172">
+    </testcase>
+    <testcase classname="General Home Unit Testing Check initial state" name="General Home Unit Testing Check initial state" time="0.014">
+    </testcase>
+    <testcase classname="General Home Unit Testing Calling componentDidMount function" name="General Home Unit Testing Calling componentDidMount function" time="0.016">
+    </testcase>
+  </testsuite>
+  <testsuite name="Testing Result Page" errors="0" failures="0" skipped="0" timestamp="2023-03-23T11:02:02" time="13.46" tests="2">
+    <testcase classname="Testing Result Page Testing Render Result Page" name="Testing Result Page Testing Render Result Page" time="2.718">
+    </testcase>
+    <testcase classname="Testing Result Page Testing navigate to home page" name="Testing Result Page Testing navigate to home page" time="0.083">
+    </testcase>
+  </testsuite>
+  <testsuite name="Testing Login Page" errors="0" failures="0" skipped="0" timestamp="2023-03-23T11:02:02" time="13.678" tests="9">
+    <testcase classname="Testing Login Page Testing render Login Page" name="Testing Login Page Testing render Login Page" time="1.518">
+    </testcase>
+    <testcase classname="Testing Login Page Testing email input change" name="Testing Login Page Testing email input change" time="0.013">
+    </testcase>
+    <testcase classname="Testing Login Page Testing password input change" name="Testing Login Page Testing password input change" time="0.004">
+    </testcase>
+    <testcase classname="Testing Login Page Testing navigate to home page" name="Testing Login Page Testing navigate to home page" time="0.004">
+    </testcase>
+    <testcase classname="Testing Login Page Testing calling login function when button clicked" name="Testing Login Page Testing calling login function when button clicked" time="0.003">
+    </testcase>
+    <testcase classname="Testing Login Page Testing login to user and navigate to user home page" name="Testing Login Page Testing login to user and navigate to user home page" time="0.833">
+    </testcase>
+    <testcase classname="Testing Login Page Testing login to admin and navigate to admin home page" name="Testing Login Page Testing login to admin and navigate to admin home page" time="0.546">
+    </testcase>
+    <testcase classname="Testing Login Page Testing login to Deactive user account and getting alert" name="Testing Login Page Testing login to Deactive user account and getting alert" time="0.55">
+    </testcase>
+    <testcase classname="Testing Login Page Testing failed to sign in user and return error" name="Testing Login Page Testing failed to sign in user and return error" time="0.299">
+    </testcase>
+  </testsuite>
+  <testsuite name="Testing SignUp Page" errors="0" failures="0" skipped="0" timestamp="2023-03-23T11:02:02" time="14.076" tests="13">
+    <testcase classname="Testing SignUp Page Testing SignUp Render" name="Testing SignUp Page Testing SignUp Render" time="1.92">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing email handler" name="Testing SignUp Page Testing email handler" time="0.072">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing first name handler" name="Testing SignUp Page Testing first name handler" time="0.054">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing last name handler" name="Testing SignUp Page Testing last name handler" time="0.059">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing gender handler" name="Testing SignUp Page Testing gender handler" time="0.036">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing DOB handler" name="Testing SignUp Page Testing DOB handler" time="0.062">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing address 1 handler" name="Testing SignUp Page Testing address 1 handler" time="0.048">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing address 2 handler" name="Testing SignUp Page Testing address 2 handler" time="0.05">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing city handler" name="Testing SignUp Page Testing city handler" time="0.067">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing password handler" name="Testing SignUp Page Testing password handler" time="0.044">
+    </testcase>
+    <testcase classname="Testing SignUp Page Testing DatePicker show when button is pressed" name="Testing SignUp Page Testing DatePicker show when button is pressed" time="0.049">
+    </testcase>
+    <testcase classname="Testing Navigate to Home Page Testing navigate to home page" name="Testing Navigate to Home Page Testing navigate to home page" time="0.025">
+    </testcase>
+    <testcase classname="Testing SignUp Function Testing Failure registration" name="Testing SignUp Function Testing Failure registration" time="0.753">
+    </testcase>
+  </testsuite>
+  <testsuite name="Testing Profile Page" errors="0" failures="1" skipped="0" timestamp="2023-03-23T11:02:02" time="13.714" tests="6">
+    <testcase classname="Testing Profile Page Testing profile renders correctly" name="Testing Profile Page Testing profile renders correctly" time="1.943">
+    </testcase>
+    <testcase classname="Testing Profile Page Testing navigate to favorite page" name="Testing Profile Page Testing navigate to favorite page" time="0.017">
+    </testcase>
+    <testcase classname="Testing Profile Page Testing navigate to Edit Profile page" name="Testing Profile Page Testing navigate to Edit Profile page" time="0.01">
+    </testcase>
+    <testcase classname="Testing Profile Page Testing navigate to home page" name="Testing Profile Page Testing navigate to home page" time="0.01">
+    </testcase>
+    <testcase classname="Testing Profile Page Testing navigate to profile page" name="Testing Profile Page Testing navigate to profile page" time="0.011">
+    </testcase>
+    <testcase classname="Testing Profile Page Function should sign out the user and navigate to the Home screen" name="Testing Profile Page Function should sign out the user and navigate to the Home screen" time="0.011">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;Home&quot;
+
+Number of calls: 0
+    at Object.&lt;anonymous&gt; (C:\Users\Jason\Desktop\Jason Folder\Final-Year-Project\Android\App\src\screens\User\__tests__\profile.test.js:108:40)
+    at Object.asyncJestTest (C:\Users\Jason\Desktop\Jason Folder\Final-Year-Project\Android\App\node_modules\jest-jasmine2\build\jasmineAsyncInstall.js:106:37)
+    at C:\Users\Jason\Desktop\Jason Folder\Final-Year-Project\Android\App\node_modules\jest-jasmine2\build\queueRunner.js:45:12
+    at new Promise (&lt;anonymous&gt;)
+    at mapper (C:\Users\Jason\Desktop\Jason Folder\Final-Year-Project\Android\App\node_modules\jest-jasmine2\build\queueRunner.js:28:19)
+    at C:\Users\Jason\Desktop\Jason Folder\Final-Year-Project\Android\App\node_modules\jest-jasmine2\build\queueRunner.js:75:41
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="General Stack Navigation testing" errors="0" failures="0" skipped="0" timestamp="2023-03-23T11:02:02" time="22.731" tests="3">
+    <testcase classname="General Stack Navigation testing Renders the home screen" name="General Stack Navigation testing Renders the home screen" time="0.296">
+    </testcase>
+    <testcase classname="General Stack Navigation testing Navigate to login screen testing" name="General Stack Navigation testing Navigate to login screen testing" time="0.149">
+    </testcase>
+    <testcase classname="General Stack Navigation testing Navigate to signUp screen testing" name="General Stack Navigation testing Navigate to signUp screen testing" time="0.075">
+    </testcase>
+  </testsuite>
+</testsuites>

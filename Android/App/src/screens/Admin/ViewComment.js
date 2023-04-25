@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
 
 export default class ViewComment extends Component {
@@ -7,12 +7,20 @@ export default class ViewComment extends Component {
     super(props);
 
     this.state = {
-      commentList: []
+      commentList: [],
+      searchComment: ''
     };
   }
 
   async componentDidMount() {
     await this.fetchCommentData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if the state has changed and reload the data if necessary
+    if (prevState.commentList !== this.state.commentList && this.state.searchComment == '') {
+      this.fetchCommentData();
+    }
   }
 
   handleSignOut = () => {
@@ -24,6 +32,15 @@ export default class ViewComment extends Component {
       })
       .catch(error => alert(error.message))
   }
+
+  handleSearch = (query) => {
+    // Update the searchQuery state and filter the users
+    const filteredComments = this.state.commentList.filter((comment) =>
+      comment.userFirstName.toLowerCase().includes(query.toLowerCase()) ||
+      comment.comment.toLowerCase().includes(query.toLowerCase())
+    );
+    this.setState({ searchComment: query, commentList: filteredComments });
+  };
 
   fetchCommentData = () => {
     firestore.collection("comments").get()
@@ -96,8 +113,23 @@ export default class ViewComment extends Component {
           </View>
           <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>
@@ -105,6 +137,8 @@ export default class ViewComment extends Component {
             <TextInput 
                 style={styles.textbox} 
                 placeholder= 'Search...'
+                value={this.state.searchComment}
+                onChangeText={this.handleSearch}
             />
         </View>
         <View style={styles.favorite}>
@@ -115,7 +149,7 @@ export default class ViewComment extends Component {
           {
             this.state.commentList.map((item, key) => {
               return (
-                <View style={styles.box}>
+                <View style={styles.box} key={key}>
                   <View style={styles.box1}>
                     <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
                   </View>
@@ -131,7 +165,21 @@ export default class ViewComment extends Component {
                       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CommentDetail', {comment: item.commentID})}>
                         <Text style={styles.login}>VIEW</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.button} onPress={() => this.handleCommentStatus(item)}>
+                      <TouchableOpacity style={styles.button} onPress={() => {
+                        Alert.alert(
+                          "Comment Activation",
+                          `Are you sure you want to ${item.status == "Show" ? "Hide" : "Show"} this comment?`,
+                          [
+                            {
+                              text: "Cancel",
+                              onPress: () => console.log("Cancel Pressed"),
+                              style: "cancel"
+                            },
+                            { text: "Yes", onPress: () => this.handleCommentStatus(item) }
+                          ],
+                          { cancelable: false }
+                        );
+                      }}>
                         <Text style={styles.login}>{item.status == "Show" ? "HIDE" : "SHOW"}</Text>
                       </TouchableOpacity>
                     </View>

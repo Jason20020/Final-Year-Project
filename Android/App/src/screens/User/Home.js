@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import * as FS from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { auth, firestore } from "../../config/firebase";
@@ -80,16 +80,16 @@ export default class Home extends Component {
   toServer = async (mediaFile) => {
     this.setState({ loader: true })
     let type = mediaFile.type;
-    let schema = "http://";
-    let host = "172.20.10.4";
+    let schema = "https://";
+    let host = "final-project-9dfc4.ew.r.appspot.com";
     let route = "";
-    let port = "5000";
+    let port = "";
     let url = "";
     let content_type = "";
     type === "image"
       ? ((route = "/image"), (content_type = "image/jpeg"))
       : ((route = "/video"), (content_type = "video/mp4"));
-    url = schema + host + ":" + port + route;
+    url = schema + host + port + route;
 
     let response = await FS.uploadAsync(url, mediaFile.uri, {
       headers: {
@@ -135,8 +135,23 @@ export default class Home extends Component {
           </View>
           <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>

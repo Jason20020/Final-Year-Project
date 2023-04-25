@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView, Alert } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
 
 export default class ViewCar extends Component {
@@ -8,6 +8,7 @@ export default class ViewCar extends Component {
 
     this.state = {
       cars: [],
+      searchCar: ''
     };
   }
 
@@ -24,6 +25,22 @@ export default class ViewCar extends Component {
   async componentDidMount() {
     await this.fetchCarData();
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if the state has changed and reload the data if necessary
+    if (prevState.cars !== this.state.cars && this.state.searchCar == '') {
+      this.fetchCarData();
+    }
+  }
+
+  handleSearch = (query) => {
+    // Update the searchQuery state and filter the users
+    const filteredCars = this.state.cars.filter((car) =>
+      car.model.toLowerCase().includes(query.toLowerCase()) ||
+      car.name.toLowerCase().includes(query.toLowerCase())
+    );
+    this.setState({ searchCar: query, cars: filteredCars });
+  };
 
   fetchCarData = () => {
     firestore.collection("cars").get()
@@ -60,8 +77,23 @@ export default class ViewCar extends Component {
           </View>
           <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>
@@ -69,17 +101,19 @@ export default class ViewCar extends Component {
             <TextInput 
                 style={styles.textbox} 
                 placeholder= 'Search...'
+                value={this.state.searchCar}
+                onChangeText={this.handleSearch}
             />
         </View>
         <View style={styles.favorite}>
           <Text style={styles.title}>Cars</Text>
         </View>
         <View style={styles.viewContainer}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} >
             {
               this.state.cars.map((item, key) => {
                 return (
-                  <View style={styles.box}>
+                  <View style={styles.box} key={key}>
                     <View style={styles.box1}>
                       <Image style={styles.img} source={{uri: item.imgUri,}}/>
                     </View>

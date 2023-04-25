@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView, TextInput, ScrollView } from 'react-native';
 import { auth, firestore } from "../../config/firebase";
-import { useEffect } from "react";
 
 export default class ViewUser extends Component {
   constructor(props) {
@@ -9,12 +8,29 @@ export default class ViewUser extends Component {
 
     this.state = {
       users: [],
+      searchUser: ''
     };
   }
 
   async componentDidMount() {
     await this.fetchUserData();
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if the state has changed and reload the data if necessary
+    if (prevState.users !== this.state.users && this.state.searchUser == '') {
+      this.fetchUserData();
+    }
+  }
+
+  handleSearch = (query) => {
+    // Update the searchQuery state and filter the users
+    const filteredUsers = this.state.users.filter((user) =>
+      user.firstName.toLowerCase().includes(query.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(query.toLowerCase())
+    );
+    this.setState({ searchUser: query, users: filteredUsers });
+  };
 
   fetchUserData = () => {
     firestore.collection("users").get()
@@ -51,6 +67,12 @@ export default class ViewUser extends Component {
       .catch(error => alert(error.message))
   }
 
+  handleScroll = (event) => {
+    const { contentOffset } = event.nativeEvent;
+    if (contentOffset.y <= 0) {
+      this.fetchUserData();
+    }
+  };
 
   render() {
     const { navigation } = this.props;
@@ -65,8 +87,23 @@ export default class ViewUser extends Component {
           </View>
           <View style={styles.headerSpac} />
           <View style={styles.headerLogout}>
-            <TouchableOpacity onPress={this.handleSignOut}>
-                <Image style={styles.fav} source={require("../../../assets/logout.png")}/>
+            <TouchableOpacity onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                  },
+                  { text: "Yes", onPress: () => this.handleSignOut() }
+                ],
+                { cancelable: false }
+              );
+            }}
+            >
+              <Image style={styles.fav} source={require("../../../assets/logout.png")} />
             </TouchableOpacity>
           </View>
         </View>
@@ -74,17 +111,21 @@ export default class ViewUser extends Component {
             <TextInput 
                 style={styles.textbox} 
                 placeholder= 'Search...'
+                value={this.state.searchUser}
+                onChangeText={this.handleSearch}
             />
         </View>
         <View style={styles.favorite}>
           <Text style={styles.title}>Users</Text>
         </View>
         <View style={styles.viewContainer}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView 
+        showsVerticalScrollIndicator={false}
+        >
           {
             this.state.users.map((item, key) => {
               return (
-              <View style={styles.box}>
+              <View style={styles.box} key={key}>
                 <View style={styles.box1}>
                   <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
                 </View>

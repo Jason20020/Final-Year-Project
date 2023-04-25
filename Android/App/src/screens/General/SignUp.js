@@ -75,8 +75,8 @@ class SignUp extends Component {
     this.setState({ password: password })
   }
 
-  handleSignUp = () => {
-    auth
+  handleSignUp = async () => {
+    await auth
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then(userCredentials => {
         firestore.collection("users").doc(auth.currentUser.uid).set({
@@ -112,8 +112,8 @@ class SignUp extends Component {
     ]
 
     return (
-      <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <SafeAreaView style={styles.container} testID="generalSignUp">
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Image style={styles.home} source={require("../../../assets/icons8-home-50.png")}/>
         </TouchableOpacity>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -126,6 +126,7 @@ class SignUp extends Component {
             placeholder= 'Enter First Name'
             onChangeText={this.handleFirstNameChange} 
             value={this.state.firstName}
+            required
           />
 
           <Text style= {styles.text}>Last Name:</Text>
@@ -157,6 +158,7 @@ class SignUp extends Component {
             mode="date"
             is24Hour={true}
             display='default'
+            maximumDate={new Date()} 
             onChange={this.handleDOBChange}
             />
           )}
@@ -201,7 +203,7 @@ class SignUp extends Component {
             value={this.state.password}
             secureTextEntry={true}
           />
-          <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
+          <TouchableOpacity style={styles.button} onPress={this.handleSignUp} testID="signUpButton">
             <Text style={styles.login}>SIGN UP</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
