@@ -130,8 +130,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   car: {
-    height: 200,
-    width: 370,
+    height: 250,
     borderRadius: 5
   },
   carDetails: {

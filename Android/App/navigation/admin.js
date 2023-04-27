@@ -54,6 +54,7 @@ export function CarNavigator() {
         <CarStack.Screen name="ViewCar" component={Car} />
         <CarStack.Screen name="CarDetail" component={CarDetail} />
         <CarStack.Screen name="EditCar" component={EditCar} />
+        <CarStack.Screen name="CommentDetail" component={CommentDetail} />
       </CarStack.Navigator>
   );
 }

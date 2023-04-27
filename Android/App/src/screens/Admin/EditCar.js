@@ -8,7 +8,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Alert
+  Alert,
+  KeyboardAvoidingView
 } from "react-native";
 import { auth, firestore } from "../../config/firebase";
 
@@ -140,6 +141,7 @@ class EditCar extends Component {
         </View>
         <View style={styles.viewContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
+        <KeyboardAvoidingView behavior="padding" style={styles.viewContainer}>
           <View style={styles.top}>
             <View style={styles.topTitle}>
               <Text style={styles.title}>Edit Car</Text>
@@ -216,6 +218,7 @@ class EditCar extends Component {
                 <Text style={styles.login}>EDIT</Text>
                 </TouchableOpacity>
             </View>
+            </KeyboardAvoidingView>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   top: {

@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import * as FS from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import Loader from "../../component/Loader";
-
+import { Camera } from 'expo-camera';
 
 export default class Home extends Component {
   constructor(props) {
@@ -12,6 +12,7 @@ export default class Home extends Component {
     this.state = {
       cameraRollPer: null,
       disableButton: false,
+      cameraPer: null,
       car: null,
       loader: false
     };
@@ -25,6 +26,14 @@ export default class Home extends Component {
         disableButton: false,
       };
     });
+
+    const { cameraStatus } = await Camera.requestCameraPermissionsAsync();
+    this.setState((state, props) => {
+      return {
+      cameraPer: cameraStatus === "granted",
+      disableButton: false,
+    };
+  });
   }
 
   pickMedia = async () => {
@@ -38,7 +47,13 @@ export default class Home extends Component {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       base64: true,
     });
-    if (result.cancelled) {
+    if (result.canceled) {
+      this.setState((state, props) => {
+        return {
+          cameraRollPer: state.cameraRollPer,
+          disableButton: false,
+        };
+      });
       return;
     }
     if (result.type == "image") {
@@ -48,6 +63,35 @@ export default class Home extends Component {
         uri: result.uri,
       });
     }
+  };
+
+  takePhoto = async () => {
+    this.setState((state, props) => {
+      return {
+        cameraPer: state.cameraPer,
+        disableButton: true,
+      };
+    });
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+    if (result.canceled) {
+      this.setState((state, props) => {
+        return {
+          cameraPer: state.cameraPer,
+          disableButton: false,
+        };
+      });
+      return;
+    }
+    await this.toServer({
+      type: "image",
+      base64: result.base64,
+      uri: result.uri,
+    });
   };
 
   toServer = async (mediaFile) => {
@@ -80,9 +124,31 @@ export default class Home extends Component {
       };
     })
     this.props.navigation.navigate('Result', {car: this.state.car});
-    this.setState({ loader: false })
+    this.setState({ loader: false, disableButton: false })
   };
 
+  showMediaOptionsAlert() {
+    Alert.alert(
+      "Choose an option",
+      "Would you like to pick media or take a photo?",
+      [
+        {
+          text: "Pick Media",
+          onPress: () => this.pickMedia(),
+        },
+        {
+          text: "Take Photo",
+          onPress: () => this.takePhoto(),
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
+  }
 
   render() {
     return (
@@ -93,11 +159,12 @@ export default class Home extends Component {
           <TouchableOpacity 
             style={styles.carButton} 
             disabled={this.state.disableButton}
-            onPress={async () => {
-              await this.pickMedia();
+            onPress={() => {
+              this.showMediaOptionsAlert();
               this.setState((s, p) => {
                 return {
                   cameraRollPer: s.cameraRollPer,
+                  cameraPer: s.cameraPer,
                   disableButton: false,
                 };
               });

@@ -43,7 +43,7 @@ export default class ViewCar extends Component {
   };
 
   fetchCarData = () => {
-    firestore.collection("cars").get()
+    firestore.collection("cars").orderBy("carID").get()
     .then((querySnapshot) => {
       const cars = [];
       querySnapshot.forEach((doc) => {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     flex: 2
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

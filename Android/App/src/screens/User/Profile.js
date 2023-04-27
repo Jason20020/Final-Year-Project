@@ -8,6 +8,7 @@ export default class Profile extends Component {
 
     this.state = {
       user: null,
+      userID: auth.currentUser.uid
     };
   }
 
@@ -23,7 +24,7 @@ export default class Profile extends Component {
   }
 
   fetchUserData = () => {
-    firestore.collection("users").doc(auth.currentUser.uid).get()
+    firestore.collection("users").doc(this.state.userID).get()
     .then(user => {
       this.setState((state, props) => {
         return {
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     flex: 2
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

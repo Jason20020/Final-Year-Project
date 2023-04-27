@@ -18,7 +18,8 @@ class ViewComment extends Component {
     this.state = {
       car: [],
       maxRating: [1,2,3,4,5],
-      commentList: []
+      commentList: [],
+      avgRate: 0
     };
   }
 
@@ -52,23 +53,30 @@ class ViewComment extends Component {
     firestore.collection("comments").get()
     .then((querySnapshot) => {
       const comments = [];
+      let totalRate = 0;
+      let count = 0;
       querySnapshot.forEach((doc) => {
-        const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID } = doc.data();
-        if(carID === this.state.car.carID)
-            comments.push({
-                commentID: doc.id,
-                carID,
-                imgUri,
-                carModel,
-                carName,
-                comment,
-                rate,
-                userFirstName,
-                gender,
-                userID
-            })
+        const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID, status } = doc.data();
+        if(carID == this.state.car.carID && status == "Show")
+        {
+          comments.push({
+            commentID: doc.id,
+            carID,
+            imgUri,
+            carModel,
+            carName,
+            comment,
+            rate,
+            userFirstName,
+            gender,
+            userID
+          })
+          totalRate += rate;
+          count++;
+        }
       })
-      this.setState({commentList: comments});
+      const avgRate = count > 0 ? totalRate / count : 0;
+      this.setState({commentList: comments, avgRate: avgRate});
     })
   }
 
@@ -119,11 +127,20 @@ class ViewComment extends Component {
                 <Text style={styles.heading}>Car Details</Text>
               </View>
               <View style = {styles.detailRate}>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowHalfStar.png")}/>
+              {
+                this.state.maxRating.map((item, key) => {
+                  return (
+                    <View key={key}>
+                    <Image
+                      style={styles.favImg}
+                      source={
+                        item <= this.state.avgRate ? require("../../../assets/yellowStar.png") : require("../../../assets/star.png")
+                      }
+                    />                    
+                    </View>
+                  );
+                })
+              }
               </View>
             </View>
           <View style={styles.bigBox}>
@@ -189,7 +206,7 @@ class ViewComment extends Component {
             {
               this.state.commentList.map((item, key) => {
                 return (
-                  <View style={styles.commentListBox}>
+                  <View style={styles.commentListBox} key={key}>
                     <View style={styles.commentListLeft}>
                       <Image style={styles.img} source={item.gender == "Male" ? require("../../../assets/male.png") : require("../../../assets/female.png")}/>
                     </View>
@@ -221,7 +238,7 @@ class ViewComment extends Component {
                       <View style={styles.commentListFooter}>
                         <View style={styles.commentFooterSpace}></View>
                         <View style={styles.commentFooterBtn}>
-                            <TouchableOpacity style={styles.dltButton} onPress={() => navigation.navigate('EditCar', { carId: this.state.car.id})}>
+                            <TouchableOpacity style={styles.dltButton} onPress={() => navigation.navigate('CommentDetail', { comment: item.commentID })}>
                                 <Text style={styles.dltBtnText}>View</Text>
                             </TouchableOpacity>
                         </View>
@@ -258,7 +275,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   top: {
@@ -295,8 +312,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   car: {
-    height: 200,
-    width: 370,
+    height: 250,
     borderRadius: 5
   },
   carDetails: {
@@ -444,7 +460,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   commentSpace: {
-    flex: 0.4
+    flex: 0.8
   }
 });
 

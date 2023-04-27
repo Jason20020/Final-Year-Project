@@ -15,6 +15,13 @@ export default class User extends Component {
     await this.fetchUserData();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    // Check if the state has changed and reload the data if necessary
+    if (prevState.user !== this.state.user) {
+      this.fetchUserData();
+    }
+  }
+
   fetchUserData = () => {
     firestore.collection("users").doc(this.props.route.params.user?.userID).get()
     .then(user => {
@@ -69,7 +76,6 @@ export default class User extends Component {
           })
           .catch(error => alert(error.message))
     }
-    this.props.navigation.navigate('ViewUser')
   }
 
   render() {
@@ -237,7 +243,7 @@ const styles = StyleSheet.create({
     flex: 2
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

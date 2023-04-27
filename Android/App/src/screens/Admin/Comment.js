@@ -19,11 +19,19 @@ class Comment extends Component {
     this.state = {
         comment: null,
         maxRating: [1,2,3,4,5],
+        commentID: ''
     };
   }
 
   async componentDidMount() {
     await this.fetchCommentData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Check if the state has changed and reload the data if necessary
+    if (prevState.comment !== this.state.comment) {
+      this.fetchCommentData();
+    }
   }
 
   handleSignOut = () => {
@@ -41,10 +49,45 @@ class Comment extends Component {
     .then(comment => {
       this.setState((state, props) => {
         return {
-          comment: comment.data()
+          comment: comment.data(),
+          commentID: comment.id
         };
       });
     })
+  }
+
+  handleCommentStatus = () => {
+    if(this.state.comment?.status == "Show"){
+      firestore.collection("comments").doc(this.state.commentID).set({
+        userID: this.state.comment?.userID,
+        userFirstName: this.state.comment?.userFirstName,
+        carID: this.state.comment?.carID,
+        carModel: this.state.comment?.carModel,
+        carName: this.state.comment?.carName,
+        imgUri: this.state.comment?.imgUri,
+        comment: this.state.comment?.comment,
+        rate: this.state.comment?.rate,
+        gender: this.state.comment?.gender,
+        status: "Hide"
+      })
+      .catch(error => alert(error.message))
+    }
+    else {
+      firestore.collection("comments").doc(this.state.commentID).set({
+        userID: this.state.comment?.userID,
+        userFirstName: this.state.comment?.userFirstName,
+        carID: this.state.comment?.carID,
+        carModel: this.state.comment?.carModel,
+        carName: this.state.comment?.carName,
+        imgUri: this.state.comment?.imgUri,
+        comment: this.state.comment?.comment,
+        rate: this.state.comment?.rate,
+        gender: this.state.comment?.gender,
+        status: "Show"
+      })
+      .catch(error => alert(error.message))
+    }
+    this.props.navigation.navigate('Comment')
   }
 
   render() {
@@ -97,7 +140,7 @@ class Comment extends Component {
                 {
                     this.state.maxRating.map((star, key) => {
                     return (
-                        <View>
+                        <View key={key}>
                         <Image
                             style={styles.favImg}
                             source={
@@ -159,6 +202,31 @@ class Comment extends Component {
             </View>
           </View>
           </View>
+          <View style={styles.commentTop}>
+            <View style={styles.commentTitle}>
+              <Text style={styles.comment}>Comment</Text>
+            </View>
+            <View style={styles.commentSpace}></View>
+            <View style={styles.commentTitle}>
+                <TouchableOpacity style={styles.button} onPress={() => {
+                        Alert.alert(
+                          "Comment Activation",
+                          `Are you sure you want to ${this.state.comment?.status == "Show" ? "Hide" : "Show"} this comment?`,
+                          [
+                            {
+                              text: "Cancel",
+                              onPress: () => console.log("Cancel Pressed"),
+                              style: "cancel"
+                            },
+                            { text: "Yes", onPress: () => this.handleCommentStatus() }
+                          ],
+                          { cancelable: false }
+                        );
+                      }}>                    
+                      <Text style={styles.btnText}>{this.state.comment?.status == "Show" ? "HIDE" : "SHOW"}</Text>
+                </TouchableOpacity>
+            </View>
+          </View>
           <TextInput
             editable={false} 
             multiline
@@ -195,7 +263,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   top: {
@@ -232,8 +300,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   car: {
-    height: 200,
-    width: 370,
+    height: 250,
     borderRadius: 5
   },
   carDetails: {
@@ -285,7 +352,7 @@ const styles = StyleSheet.create({
   },
   comment: {
     fontSize: 32,
-    marginTop: 5
+    marginTop: 10,
   },
   heading4: {
     fontSize: 20,
@@ -295,7 +362,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#DFDEDE",
     borderRadius: 6,
     padding: 6,
-    marginTop: 10
+    marginTop: 10,
+    fontSize: 25
   },
   commentTop: {
     flexDirection:'row',
@@ -318,7 +386,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingTop: 3, 
     paddingBottom: 3,
-    marginTop: 10
+    marginTop: 15,
+    maxWidth: 175
+  },
+  btnText: {
+    fontSize: 20,
+    color: '#FFFEFE'
   },
   login: {
     fontSize: 20,
@@ -344,6 +417,9 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  commentSpace: {
+    flex: 0.8
   }
 });
 

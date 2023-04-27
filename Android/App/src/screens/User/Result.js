@@ -8,7 +8,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Alert
+  Alert,
+  KeyboardAvoidingView
 } from "react-native";
 import { auth, firestore } from "../../config/firebase";
 
@@ -23,7 +24,9 @@ class Result extends Component {
       car: [],
       maxRating: [1,2,3,4,5],
       favID: '',
-      commentList: []
+      commentList: [],
+      userID: '',
+      avgRate: 0
     };
   }
 
@@ -31,6 +34,14 @@ class Result extends Component {
     await this.fetchCarData();
     await this.fetchFavData();
     await this.fetchCommentData();
+    await this.setState({userID: auth.currentUser.uid})
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const currentUser = auth.currentUser;
+    if (currentUser && prevState.commentList !== this.state.commentList) {
+      this.fetchCommentData();
+    }
   }
 
   fetchCarData = () => {
@@ -75,13 +86,18 @@ class Result extends Component {
   }
 
   handleSignOut = () => {
-    auth
-      .signOut()
-      .then(() => {
-        this.props.navigation.replace("Home");
-        console.log("Logout Successfully")
-      })
-      .catch(error => alert(error.message))
+    if (auth.currentUser) {
+      auth
+        .signOut()
+        .then(() => {
+          this.props.navigation.replace("Home");
+          console.log("Logout Successfully")
+        })
+        .catch(error => {
+          alert(error.message);
+          this.props.navigation.replace("Home");
+        })
+    }
   }
 
   addFavorite = () => {
@@ -128,9 +144,12 @@ class Result extends Component {
     firestore.collection("comments").get()
     .then((querySnapshot) => {
       const comments = [];
+      let totalRate = 0;
+      let count = 0;
       querySnapshot.forEach((doc) => {
         const { carID, imgUri, carModel, carName, comment, rate, userFirstName, gender, userID, status } = doc.data();
         if(carID == this.state.car.carID && status == "Show")
+        {
           comments.push({
             commentID: doc.id,
             carID,
@@ -143,8 +162,12 @@ class Result extends Component {
             gender,
             userID
           })
+          totalRate += rate;
+          count++;
+        }
       })
-      this.setState({commentList: comments});
+      const avgRate = count > 0 ? totalRate / count : 0;
+      this.setState({commentList: comments, avgRate: avgRate});
     })
   }
 
@@ -153,7 +176,7 @@ class Result extends Component {
       const docRef = firestore.collection('comments').doc(docId);
       await docRef.delete();
       console.log('Comment deleted successfully.');
-      this.props.navigation.replace('Result', {car: this.props.route.params.car, user: this.props.route.params.user});
+      //this.props.navigation.replace('Result', {car: this.props.route.params.car, user: this.props.route.params.user});
     } catch (error) {
       console.error('Error deleting comment: ', error);
     }
@@ -198,6 +221,7 @@ class Result extends Component {
         </View>
         <View style={styles.viewContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
+         <KeyboardAvoidingView behavior="padding" style={styles.viewContainer}>
           <View style={styles.top}>
             <View style={styles.topTitle}>
               <Text style={styles.title}>{this.state.car.model} {this.state.car.name}</Text>
@@ -223,11 +247,20 @@ class Result extends Component {
                 <Text style={styles.heading}>Car Details</Text>
               </View>
               <View style = {styles.detailRate}>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowStar.png")}/>
-                <Image style={styles.favImg} source={require("../../../assets/yellowHalfStar.png")}/>
+              {
+                this.state.maxRating.map((item, key) => {
+                  return (
+                    <View key={key}>
+                    <Image
+                      style={styles.favImg}
+                      source={
+                        item <= this.state.avgRate ? require("../../../assets/yellowStar.png") : require("../../../assets/star.png")
+                      }
+                    />                    
+                    </View>
+                  );
+                })
+              }
               </View>
             </View>
           <View style={styles.bigBox}>
@@ -333,7 +366,7 @@ class Result extends Component {
                         {
                           this.state.maxRating.map((star, key) => {
                             return (
-                              <View>
+                              <View key={key}>
                                 <Image
                                   style={styles.rateImg}
                                   source={
@@ -353,8 +386,26 @@ class Result extends Component {
                         <View style={styles.commentFooterSpace}></View>
                         <View style={styles.commentFooterBtn}>
                           {
-                            item.userID == auth.currentUser.uid ? 
-                            <TouchableOpacity style={styles.dltButton} onPress={() => this.deleteComment(item.commentID)}>
+                            item.userID == this.state.userID ? 
+                            <TouchableOpacity style={styles.dltButton} onPress={() => {
+                              Alert.alert(
+                                'Delete Comment',
+                                'Are you sure you want to delete this comment?',
+                                [
+                                  {
+                                    text: 'Cancel',
+                                    onPress: () => console.log('Cancel Pressed'),
+                                    style: 'cancel'
+                                  },
+                                  {
+                                    text: 'Delete',
+                                    onPress: () => this.deleteComment(item.commentID),
+                                    style: 'destructive'
+                                  }
+                                ],
+                                { cancelable: false }
+                              );
+                            }}>
                               <Text style={styles.dltBtnText}>DELETE</Text>
                             </TouchableOpacity>
                             : null
@@ -366,6 +417,7 @@ class Result extends Component {
                   )
                 })
               }     
+              </KeyboardAvoidingView>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -381,7 +433,6 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
     flexDirection:'row',
-    backgroundColor: "#FFE999"
   },
   headerFav: {
     flex: 1,
@@ -394,7 +445,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   top: {
@@ -417,7 +468,7 @@ const styles = StyleSheet.create({
   },
   viewContainer: {
     flex: 7,
-    margin: 10
+    margin: 10,
   },
   home: {
     marginLeft: 20,
@@ -431,8 +482,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   car: {
-    height: 200,
-    width: 370,
+    height: 250,
     borderRadius: 5
   },
   carDetails: {
@@ -494,7 +544,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#DFDEDE",
     borderRadius: 6,
     padding: 6,
-    marginTop: 10
+    marginTop: 10,
+    height: 100
   },
   commentTop: {
     flexDirection:'row',

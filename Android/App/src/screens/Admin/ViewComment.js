@@ -43,7 +43,7 @@ export default class ViewComment extends Component {
   };
 
   fetchCommentData = () => {
-    firestore.collection("comments").get()
+    firestore.collection("comments").orderBy("carID").get()
     .then((querySnapshot) => {
       const comments = [];
       querySnapshot.forEach((doc) => {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     flex: 2
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

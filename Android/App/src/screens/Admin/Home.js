@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, Alert, Image, TouchableOpacity, SafeAreaView } 
 import * as FS from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { auth, firestore } from "../../config/firebase";
+import Loader from "../../component/Loader";
+import { Camera } from 'expo-camera';
 
 export default class Home extends Component {
   constructor(props) {
@@ -13,6 +15,7 @@ export default class Home extends Component {
       disableButton: false,
       car: null,
       user: null,
+      loader: false
     };
   }
 
@@ -25,6 +28,14 @@ export default class Home extends Component {
         disableButton: false,
       };
     });
+
+    const { cameraStatus } = await Camera.requestCameraPermissionsAsync();
+    this.setState((state, props) => {
+      return {
+      cameraPer: cameraStatus === "granted",
+      disableButton: false,
+    };
+  });
   }
 
   fetchUserData = () => {
@@ -56,7 +67,13 @@ export default class Home extends Component {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       base64: true,
     });
-    if (result.cancelled) {
+    if (result.canceled) {
+      this.setState((state, props) => {
+        return {
+          cameraRollPer: state.cameraRollPer,
+          disableButton: false,
+        };
+      });
       return;
     }
     if (result.type == "image") {
@@ -75,7 +92,37 @@ export default class Home extends Component {
     }
   };
 
+  takePhoto = async () => {
+    this.setState((state, props) => {
+      return {
+        cameraPer: state.cameraPer,
+        disableButton: true,
+      };
+    });
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+    if (result.canceled) {
+      this.setState((state, props) => {
+        return {
+          cameraPer: state.cameraPer,
+          disableButton: false,
+        };
+      });
+      return;
+    }
+    await this.toServer({
+      type: "image",
+      base64: result.base64,
+      uri: result.uri,
+    });
+  };
+
   toServer = async (mediaFile) => {
+    this.setState({ loader: true })
     let type = mediaFile.type;
     let schema = "https://";
     let host = "final-project-9dfc4.ew.r.appspot.com";
@@ -104,6 +151,7 @@ export default class Home extends Component {
       };
     })
     this.props.navigation.navigate('CarDetail', {car: this.state.car});
+    this.setState({ loader: false, disableButton: false })
   };
 
   handleSignOut = () => {
@@ -116,11 +164,33 @@ export default class Home extends Component {
       .catch(error => alert(error.message))
   }
 
+  showMediaOptionsAlert() {
+    Alert.alert(
+      "Choose an option",
+      "Would you like to pick media or take a photo?",
+      [
+        {
+          text: "Pick Media",
+          onPress: () => this.pickMedia(),
+        },
+        {
+          text: "Take Photo",
+          onPress: () => this.takePhoto(),
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
+  }
 
   render() {
     const { navigation } = this.props;
-
     return (
+      <>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerFav}>
@@ -155,21 +225,26 @@ export default class Home extends Component {
         </View>
         <View style={styles.viewContainer}>
           <TouchableOpacity 
-          style={styles.carButton} 
-          disabled={this.state.disableButton}
-            onPress={async () => {
-              await this.pickMedia();
+            style={styles.carButton} 
+            disabled={this.state.disableButton}
+            onPress={() => {
+              this.showMediaOptionsAlert();
               this.setState((s, p) => {
                 return {
                   cameraRollPer: s.cameraRollPer,
+                  cameraPer: s.cameraPer,
                   disableButton: false,
                 };
               });
-            }}>
+            }}
+            testID="logoButton"
+            >
             <Image style={styles.logo} source={require("../../../assets/carLogo.png")}/>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      {this.state.loader ? <Loader/> : null}
+      </>
     );
   }
 }
@@ -192,7 +267,7 @@ const styles = StyleSheet.create({
     flex: 2
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

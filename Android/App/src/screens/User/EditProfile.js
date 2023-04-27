@@ -21,6 +21,7 @@ class SignUp extends Component {
     super(props);
 
     this.state = {
+      userID: auth.currentUser.uid,
       firstName: this.props.route.params.user?.firstName,
       lastName: this.props.route.params.user?.lastName,
       gender: this.props.route.params.user?.gender,
@@ -74,8 +75,8 @@ class SignUp extends Component {
   }
 
   handleEditUser = () => {
-    firestore.collection("users").doc(auth.currentUser.uid).set({
-      userID: auth.currentUser.uid,
+    firestore.collection("users").doc(this.state.userID).set({
+      userID: this.state.userID,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       gender: this.state.gender,
@@ -95,6 +96,15 @@ class SignUp extends Component {
     this.setState({ show: true })
   }
 
+  handleSignOut = () => {
+    auth
+      .signOut()
+      .then(() => {
+        this.props.navigation.replace("Home");
+        console.log("Logout Successfully")
+      })
+      .catch(error => alert(error.message))
+  }
 
   render() {
     const { navigation } = this.props;
@@ -253,7 +263,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

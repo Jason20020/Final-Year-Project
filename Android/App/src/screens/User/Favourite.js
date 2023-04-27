@@ -57,8 +57,6 @@ export default class Favorite extends Component {
       .catch(error => alert(error.message))
   }
 
-  
-
   render() {
     const {navigation} = this.props
     return (
@@ -134,7 +132,6 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
     flexDirection:'row',
-    backgroundColor: "#FFE999"
   },
   headerFav: {
     flex: 1,
@@ -147,7 +144,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {

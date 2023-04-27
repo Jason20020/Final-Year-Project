@@ -30,6 +30,7 @@ class EditProfile extends Component {
       city: this.props.route.params.user?.city,
       email: this.props.route.params.user?.email,
       password: this.props.route.params.user?.firstName,
+      active: this.props.route.params.user?.active,
 
       show: false,
       date: new Date()
@@ -85,7 +86,7 @@ class EditProfile extends Component {
       city: this.state.city,
       email: this.state.email,
       role: "user",
-      active: "Active"
+      active: this.state.active
     })
     .catch(error => alert(error.message))
     this.props.navigation.navigate('ViewUser')
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   headerLogout: {
-    flex: 1,
+    flex: 0.8,
     flexDirection:'row'
   },
   fav: {
