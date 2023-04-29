@@ -67,8 +67,8 @@ Jonathan Krause, Michael Stark, Jia Deng, Li Fei-Fei
 
 ## Technical Information
 
-- Visual Studio 2022 (Python)
-- Visual Studio Code (React Native)
+- Visual Studio 2022 (Tensorflow - Python)
+- Visual Studio Code (React Native - JavaScript)
 - React Native 0.70.8
 - React 18.1.0
 - Expo 47.0.12
