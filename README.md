@@ -8,9 +8,10 @@ The idea of this project is to design a mobile application that will provide the
 The reason that I want to work on this project is because I could not find a good application in market that provides a car recognition function. I think this type of application is quite useful because there are many types of cars in the world nowadays and not everyone knows about all the cars. This application will make it easier for consumers to know more about the car they want to buy. Besides that, I wanted to gain understanding of mobile application development as this is not one of the modules I am currently studying.
 
 ## Folders
--- CarRecognition: This folder contains the function of image recognition.
 
--- Android: This folder contains the code of React Native Frontend. 
+-- CarRecognition: This folder contains the car dataset srubbing, setup model, training ResNet50 model and implement function of car recognition.
+
+-- Mobile Application: This folder contains two folders inside which are 'App' and 'backend' folder. The App folder include the code of React Native Expo Frontend. The backend folder contains the code of car recognition function in python. This backend application is currently running on Google Cloud App Engine to handle the car recognition function. When the user uploads an image from React Native frontend, the backend will receive the image and run the model to implement the car recognition and return the result back to frontend.
 
 ## Setup Application
 To use the mobile application, follow the steps below to run the application:
